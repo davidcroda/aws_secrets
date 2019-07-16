@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='aws_secrets',
-    version='0.1.0',
+    version='0.1.1',
     packages=['aws_secrets'],
     url='https://github.com/davidcroda/aws_secrets',
     license='MIT',
