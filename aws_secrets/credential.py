@@ -29,8 +29,9 @@ class AWSCredential:
     @classmethod
     def resolve_credentials(cls):
         for instance in cls._instances:
-            if instance:
-                instance().resolve()
+            cred = instance()
+            if cred is not None:
+                cred.resolve()
 
     @property
     def is_binary(self):
