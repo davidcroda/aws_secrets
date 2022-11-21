@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aws_secrets"
+version = "0.1.5"
+authors = [
+  { name="David Roda", email="davidcroda@gmail.com" },
+]
+description = "Python library for resolving secrets from AWS Secrets Manager"
+readme = "README.rst"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/davidcroda/aws_secrets"
+"Bug Tracker" = "https://github.com/davidcroda/aws_secrets/issues"
