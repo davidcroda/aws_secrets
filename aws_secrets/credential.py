@@ -26,12 +26,11 @@ class AWSCredential:
         if not self.value:
             self.value = self._session.get_secret(self.key)
 
-    @classmethod
-    def resolve_credentials(cls):
-        for instance in cls._instances:
-            cred = instance()
-            if cred is not None:
-                cred.resolve()
+    def get(self, key, default=None):
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            return default
 
     @property
     def is_binary(self):
@@ -47,6 +46,21 @@ class AWSCredential:
         if not self.value:
             raise RuntimeError('The secret could not be resolved')
         return str(self.value)
+
+    @classmethod
+    def resolve_credentials(cls):
+        for instance in cls._instances:
+            cred = instance()
+            if cred is not None:
+                cred.resolve()
+
+    @classmethod
+    def set_region(cls, region_name):
+        cls.region_name = region_name
+
+        # Reinitialize AWS session in new region
+        if cls._session:
+            cls._session = AWSSession(cls.region_name)
 
 
 class AWSSession:
