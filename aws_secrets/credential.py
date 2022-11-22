@@ -19,8 +19,8 @@ class AWSCredential:
     def __init__(self, key, region_name=os.getenv('AWS_REGION', 'us-east-1'), config=None):
         self.key = key
 
-        if not AWSCredential.region_name:
-            AWSCredential.region_name = region_name
+        if not AWSCredential._region_name:
+            AWSCredential._region_name = region_name
 
         if not AWSCredential._config and config:
             AWSCredential._config = config
