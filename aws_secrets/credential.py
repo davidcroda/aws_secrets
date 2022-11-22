@@ -1,22 +1,32 @@
 import json
+import logging
 import os
 import weakref
 
 import boto3 as boto3
 
 
+LOGGER = logging.getLogger(__name__)
+
+
 class AWSCredential:
 
     _instances = set()
     _session = None
-    region_name = None
+    _config = None
+    _region_name = None
 
-    def __init__(self, key, region_name=None):
+    def __init__(self, key, region_name=os.getenv('AWS_REGION', 'us-east-1'), config=None):
         self.key = key
-        self.region_name = region_name or os.getenv('AWS_REGION', 'eu-west-1')
+
+        if not AWSCredential.region_name:
+            AWSCredential.region_name = region_name
+
+        if not AWSCredential._config and config:
+            AWSCredential._config = config
 
         if not AWSCredential._session:
-            AWSCredential._session = AWSSession(self.region_name)
+            AWSCredential.create_session()
 
         self.value = None
 
@@ -48,6 +58,10 @@ class AWSCredential:
         return str(self.value)
 
     @classmethod
+    def create_session(cls):
+        cls._session = AWSSession(cls._region_name, cls._config)
+
+    @classmethod
     def resolve_credentials(cls):
         for instance in cls._instances:
             cred = instance()
@@ -56,24 +70,38 @@ class AWSCredential:
 
     @classmethod
     def set_region(cls, region_name):
-        cls.region_name = region_name
+        cls._region_name = region_name
 
         # Reinitialize AWS session in new region
         if cls._session:
-            cls._session = AWSSession(cls.region_name)
+            cls.create_session()
+
+    @classmethod
+    def set_config(cls, config):
+        cls._config = config
+
+        # Reinitialize AWS session in new region
+        if cls._session:
+            cls.create_session()
 
 
 class AWSSession:
-    def __init__(self, region_name):
+    def __init__(self, region_name, config=None):
         self.client = boto3.session.Session().client(
             service_name='secretsmanager',
-            region_name=region_name
+            region_name=region_name,
+            config=config
         )
 
     def get_secret(self, secret_name):
-        get_secret_value_response = self.client.get_secret_value(
-            SecretId=secret_name
-        )
+        try:
+            get_secret_value_response = self.client.get_secret_value(
+                SecretId=secret_name
+            )
+        except Exception:
+            LOGGER.error("Error resolving secret %s", secret_name)
+            raise
+
 
         if 'SecretString' in get_secret_value_response:
             secret = get_secret_value_response['SecretString']
