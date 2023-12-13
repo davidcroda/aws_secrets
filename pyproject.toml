@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aws_secrets"
-version = "0.1.8"
+version = "0.1.9"
 authors = [
   { name="David Roda", email="davidcroda@gmail.com" },
 ]
@@ -15,6 +15,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+dependencies = [
+    "boto3"
 ]
 
 [project.urls]
